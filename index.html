@@ -21,7 +21,7 @@
             background-color: #ffffff;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 8px Gist;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 600px;
             text-align: center;
@@ -48,6 +48,7 @@
         }
         .controls {
             display: flex;
+            flex-wrap: wrap; /* Para telas menores */
             justify-content: space-between;
             align-items: center;
             gap: 20px;
@@ -102,8 +103,7 @@
         <h1>Gerador de Narração Virtual</h1>
         <p>Digite o texto que deseja transformar em áudio, escolha uma voz e clique em gerar.</p>
 
-        <textarea id="text-input" placeholder="Alô pessoal do grupo VIP! 
-Hoje é o último dia pra aproveitar a promoção especial aqui da Casa de Carnes Ponto Certo!"></textarea>
+        <textarea id="text-input" placeholder="Digite seu texto aqui..."></textarea>
         
         <div class="controls">
              <select id="voice-select">
@@ -140,15 +140,13 @@ Hoje é o último dia pra aproveitar a promoção especial aqui da Casa de Carne
 
             // Desabilita o botão e mostra status de carregamento
             generateBtn.disabled = true;
-            statusMessage.textContent = 'Gerando áudio, por favor aguarde...';
+            statusMessage.textContent = 'Gerando áudio, por favor aguarde... (pode levar alguns segundos na primeira vez)';
             statusMessage.style.color = '#3498db';
             audioPlayer.style.display = 'none';
 
             try {
-                // A URL foi atualizada para um caminho relativo ('/generate-audio').
-                // Isso faz com que a requisição seja enviada para o mesmo servidor que
-                // hospeda a página, funcionando perfeitamente na Hostinger.
-                const response = await fetch('/generate-audio', {
+                // A URL está apontando diretamente para o seu backend no Render.com.
+                const response = await fetch('https://meu-narrador-virtual.onrender.com/generate-audio', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
