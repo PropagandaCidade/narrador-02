@@ -34,9 +34,15 @@
             color: #7f8c8d;
             margin-bottom: 30px;
         }
+        label {
+            display: block;
+            text-align: left;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 8px;
+        }
         textarea {
             width: 100%;
-            height: 150px;
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #dfe4ea;
@@ -46,9 +52,12 @@
             margin-bottom: 20px;
             box-sizing: border-box;
         }
+        #text-input { height: 150px; }
+        #style-input { height: 80px; } /* Altura menor para o campo de estilo */
+
         .controls {
             display: flex;
-            flex-wrap: wrap; /* Para telas menores */
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
             gap: 20px;
@@ -93,7 +102,7 @@
         audio {
             width: 100%;
             margin-top: 20px;
-            display: none; /* Começa escondido */
+            display: none;
         }
     </style>
 </head>
@@ -101,9 +110,14 @@
 
     <div class="container">
         <h1>Gerador de Narração Virtual</h1>
-        <p>Digite o texto que deseja transformar em áudio, escolha uma voz e clique em gerar.</p>
+        <p>Digite o texto, adicione instruções de estilo (em inglês) e clique em gerar.</p>
 
+        <label for="text-input">Texto para Narração</label>
         <textarea id="text-input" placeholder="Digite seu texto aqui..."></textarea>
+        
+        <!-- NOVO CAMPO PARA INSTRUÇÕES DE ESTILO -->
+        <label for="style-input">Instruções de Estilo (em Inglês)</label>
+        <textarea id="style-input" placeholder="Ex: Read aloud in a warm and friendly tone. Emphasize the last sentence."></textarea>
         
         <div class="controls">
              <select id="voice-select">
@@ -123,6 +137,7 @@
 
     <script>
         const textInput = document.getElementById('text-input');
+        const styleInput = document.getElementById('style-input'); // Pega o novo campo
         const generateBtn = document.getElementById('generate-btn');
         const voiceSelect = document.getElementById('voice-select');
         const statusMessage = document.getElementById('status-message');
@@ -131,6 +146,7 @@
         generateBtn.addEventListener('click', async () => {
             const text = textInput.value.trim();
             const voice = voiceSelect.value;
+            const style = styleInput.value.trim(); // Pega o valor do campo de estilo
 
             if (!text) {
                 statusMessage.textContent = 'Por favor, digite um texto para gerar o áudio.';
@@ -138,20 +154,19 @@
                 return;
             }
 
-            // Desabilita o botão e mostra status de carregamento
             generateBtn.disabled = true;
-            statusMessage.textContent = 'Gerando áudio, por favor aguarde... (pode levar alguns segundos na primeira vez)';
+            statusMessage.textContent = 'Gerando áudio, por favor aguarde...';
             statusMessage.style.color = '#3498db';
             audioPlayer.style.display = 'none';
 
             try {
-                // A URL está apontando diretamente para o seu backend no Render.com.
                 const response = await fetch('https://meu-narrador-virtual.onrender.com/generate-audio', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ text: text, voice: voice }),
+                    // Adicionamos a chave 'style' ao corpo da requisição
+                    body: JSON.stringify({ text: text, voice: voice, style: style }),
                 });
 
                 if (!response.ok) {
@@ -159,10 +174,7 @@
                     throw new Error(errorData.error || 'Ocorreu um erro no servidor.');
                 }
                 
-                // Pega o áudio como um 'blob' (um objeto de arquivo binário)
                 const audioBlob = await response.blob();
-                
-                // Cria uma URL local no navegador para o blob e a coloca no player de áudio
                 const audioUrl = URL.createObjectURL(audioBlob);
                 audioPlayer.src = audioUrl;
                 audioPlayer.style.display = 'block';
@@ -176,7 +188,6 @@
                 statusMessage.textContent = `Erro ao gerar áudio: ${error.message}`;
                 statusMessage.style.color = '#e74c3c';
             } finally {
-                // Reabilita o botão, independentemente do resultado
                 generateBtn.disabled = false;
             }
         });

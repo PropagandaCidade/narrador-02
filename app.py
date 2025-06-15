@@ -1,18 +1,13 @@
-# app.py
-
 import os
 import struct
 import io
-from flask import Flask, request, jsonify, send_file, render_template
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from google import genai
 from google.genai import types
 
-# --- Configuração do Flask ---
 app = Flask(__name__)
 CORS(app)
-
-# --- Funções do script original (sem modificações) ---
 
 def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
     parameters = parse_audio_mime_type(mime_type)
@@ -51,24 +46,23 @@ def parse_audio_mime_type(mime_type: str) -> dict[str, int | None]:
                 pass
     return {"bits_per_sample": bits_per_sample, "rate": rate}
 
-# --- Rotas da Aplicação ---
-
 @app.route('/')
 def home():
-    """Serve a página principal da aplicação."""
-    return render_template('index.html')
+    """Esta rota não é usada quando o frontend está na Hostinger, mas é bom mantê-la."""
+    return "Backend do Gerador de Narração está online."
 
 @app.route('/generate-audio', methods=['POST'])
 def generate_audio_endpoint():
-    """Endpoint para receber texto e retornar o áudio gerado."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERRO: A variável de ambiente GEMINI_API_KEY não foi definida no painel da Hostinger.")
+        print("ERRO: Variável de ambiente GEMINI_API_KEY não encontrada.")
         return jsonify({"error": "Configuração do servidor incompleta: Chave da API ausente."}), 500
 
     data = request.get_json()
     text_to_narrate = data.get('text')
     voice_name = data.get('voice', 'Aoede')
+    # Pega as instruções de estilo da requisição. Retorna None se não for enviado.
+    style_instructions_text = data.get('style')
 
     if not text_to_narrate:
         return jsonify({"error": "O texto não pode estar vazio."}), 400
@@ -77,13 +71,26 @@ def generate_audio_endpoint():
         client = genai.Client(api_key=api_key)
         model = "gemini-2.5-flash-preview-tts"
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=text_to_narrate)])]
+
+        # --- LÓGICA ATUALIZADA PARA O SPEECH CONFIG ---
+        # Cria um dicionário com os parâmetros básicos de configuração da fala
+        speech_config_params = {
+            "voice_config": types.VoiceConfig(
+                prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
+            )
+        }
+
+        # Se o texto de instrução de estilo existir (não for nulo ou vazio),
+        # adiciona-o ao dicionário de parâmetros.
+        if style_instructions_text:
+            speech_config_params["style_instructions"] = style_instructions_text
+
+        # Cria o objeto SpeechConfig usando os parâmetros preparados
+        speech_config = types.SpeechConfig(**speech_config_params)
+        
         generate_content_config = types.GenerateContentConfig(
             response_modalities=["audio"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
-                )
-            ),
+            speech_config=speech_config, # Usa o objeto de configuração que acabamos de criar
         )
         
         audio_buffer = bytearray()
