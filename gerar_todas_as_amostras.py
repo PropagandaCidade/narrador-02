@@ -1,10 +1,19 @@
-# gerar_amostras.py
 import os
 from google import genai
 from google.genai import types
 
-# Lista de todas as vozes disponíveis
-VOZES = ["puck", "autonoe", "callirrhoe", "achernar", "iapetus", "algenib"]
+# Lista COMPLETA de todas as vozes da documentação
+VOZES = [
+    # Masculinas
+    "achernar", "achird", "algenib", "algieba", "alnilam", "dione", "encladus",
+    "erinome", "fenrir", "gacrux", "iapetus", "kore", "laomedeia", "leda",
+    "orus", "puck", "rasalgethi", "sadachbia", "sadaltager", "schedar", "sulafat",
+    "zephyr", "zubenelgenubi",
+    # Femininas
+    "aoede", "autonoe", "callirrhoe", "charon", "despina", "euterpe", "hyperion",
+    "pulcherrima", "umbriel", "vindemiatrix"
+]
+
 TEXTO_AMOSTRA = "Olá, esta é uma demonstração da minha voz."
 
 def generate_sample(voice_name: str):
@@ -12,7 +21,7 @@ def generate_sample(voice_name: str):
     print(f"Gerando amostra para a voz: {voice_name}...")
     try:
         client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        model = "gemini-2.5-flash-preview-tts"
+        model = "gemini-1.5-pro-latest"
         
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=TEXTO_AMOSTRA)])]
         
@@ -33,7 +42,6 @@ def generate_sample(voice_name: str):
 
         if response.candidates[0].content.parts[0].inline_data.data:
             audio_data = response.candidates[0].content.parts[0].inline_data.data
-            # Salva o arquivo como WAV (formato mais universal)
             file_name = f"{voice_name}.wav"
             with open(file_name, "wb") as f:
                 f.write(audio_data)
@@ -50,4 +58,4 @@ if __name__ == "__main__":
     else:
         for voz in VOZES:
             generate_sample(voz)
-        print("\nProcesso concluído!")
+        print("\nProcesso concluído! Todos os arquivos .wav foram gerados.")

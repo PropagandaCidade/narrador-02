@@ -67,7 +67,7 @@ def generate_audio_endpoint():
 
     try:
         client = genai.Client(api_key=api_key)
-        model = "gemini-2.5-flash-preview-tts"
+        model = "gemini-1.5-pro-latest"
 
         # --- LÓGICA CORRIGIDA PARA O CONTEÚDO ---
         # 1. Cria uma lista vazia para as partes do prompt
