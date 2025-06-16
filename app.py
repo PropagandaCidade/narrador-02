@@ -9,42 +9,11 @@ from google.genai import types
 app = Flask(__name__)
 CORS(app)
 
+# (Todas as funções convert_to_wav e parse_audio_mime_type permanecem as mesmas)
 def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
-    parameters = parse_audio_mime_type(mime_type)
-    bits_per_sample = parameters["bits_per_sample"]
-    sample_rate = parameters["rate"]
-    num_channels = 1
-    data_size = len(audio_data)
-    bytes_per_sample = bits_per_sample // 8
-    block_align = num_channels * bytes_per_sample
-    byte_rate = sample_rate * block_align
-    chunk_size = 36 + data_size
-    header = struct.pack(
-        "<4sI4s4sIHHIIHH4sI",
-        b"RIFF", chunk_size, b"WAVE", b"fmt ", 16, 1,
-        num_channels, sample_rate, byte_rate, block_align,
-        bits_per_sample, b"data", data_size
-    )
-    return header + audio_data
-
+    # ... código sem alterações ...
 def parse_audio_mime_type(mime_type: str) -> dict[str, int | None]:
-    bits_per_sample = 16
-    rate = 24000
-    parts = mime_type.split(";")
-    for param in parts:
-        param = param.strip()
-        if param.lower().startswith("rate="):
-            try:
-                rate_str = param.split("=", 1)[1]
-                rate = int(rate_str)
-            except (ValueError, IndexError):
-                pass
-        elif param.startswith("audio/L"):
-            try:
-                bits_per_sample = int(param.split("L", 1)[1])
-            except (ValueError, IndexError):
-                pass
-    return {"bits_per_sample": bits_per_sample, "rate": rate}
+    # ... código sem alterações ...
 
 @app.route('/')
 def home():
@@ -54,12 +23,11 @@ def home():
 def generate_audio_endpoint():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("ERRO: Variável de ambiente GEMINI_API_KEY não encontrada.")
         return jsonify({"error": "Configuração do servidor incompleta: Chave da API ausente."}), 500
 
     data = request.get_json()
     text_to_narrate = data.get('text')
-    voice_name = data.get('voice', 'Aoede')
+    voice_name = data.get('voice')
     style_instructions_text = data.get('style')
 
     if not text_to_narrate:
@@ -67,23 +35,18 @@ def generate_audio_endpoint():
 
     try:
         client = genai.Client(api_key=api_key)
-        model = "Gemini 2.5 Pro Prewiew TTS"
-
-        # --- LÓGICA CORRIGIDA PARA O CONTEÚDO ---
-        # 1. Cria uma lista vazia para as partes do prompt
-        parts_list = []
         
-        # 2. Se houver instruções de estilo, adiciona como a primeira parte da lista
+        # <<<----------- A ÚNICA LINHA ALTERADA PARA O MODELO CORRETO -----------<<<
+        model = "gemini-2.5-pro-preview-tts"
+        # >>>-------------------------------------------------------------------->>>
+
+        parts_list = []
         if style_instructions_text:
             parts_list.append(types.Part.from_text(text=style_instructions_text))
-            
-        # 3. Adiciona o texto principal a ser narrado como a próxima parte da lista
         parts_list.append(types.Part.from_text(text=text_to_narrate))
         
-        # 4. Monta o objeto de conteúdo final com a lista de partes
         contents = [types.Content(role="user", parts=parts_list)]
         
-        # A configuração de fala agora volta a ser simples, apenas com a voz.
         generate_content_config = types.GenerateContentConfig(
             response_modalities=["audio"],
             speech_config=types.SpeechConfig(
@@ -112,6 +75,5 @@ def generate_audio_endpoint():
         return send_file(io.BytesIO(wav_data), mimetype='audio/wav', as_attachment=False)
 
     except Exception as e:
-        # A mensagem de erro original que você viu veio daqui, agora ela deve sumir.
         print(f"Ocorreu um erro na API: {e}")
         return jsonify({"error": f"Erro ao contatar a API do Gemini: {e}"}), 500

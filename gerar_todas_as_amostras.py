@@ -21,7 +21,7 @@ def generate_sample(voice_name: str):
     print(f"Gerando amostra para a voz: {voice_name}...")
     try:
         client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
-        model = "Gemini 2.5 Pro Prewiew TTS"
+        model = "gemini-2.5-pro-preview-tts"
         
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=TEXTO_AMOSTRA)])]
         
