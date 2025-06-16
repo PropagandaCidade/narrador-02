@@ -8,17 +8,18 @@
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
         .container { background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 800px; }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
-        label { display: block; text-align: left; font-weight: bold; color: #555; margin-bottom: 8px; margin-top: 20px; }
+        label { display: block; text-align: left; font-weight: bold; color: #2c3e50; margin-bottom: 8px; margin-top: 25px; font-size: 18px; border-bottom: 2px solid #ecf0f1; padding-bottom: 5px;}
         textarea { width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #dfe4ea; font-size: 16px; resize: vertical; box-sizing: border-box; }
         .select-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
         select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dfe4ea; font-size: 16px; background-color: #fff; cursor: pointer; }
-        .voice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin-top: 10px; max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid #dfe4ea; border-radius: 8px;}
-        .voice-card { border: 3px solid #dfe4ea; border-radius: 12px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .voice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 10px; }
+        .voice-card { display: flex; flex-direction: column; justify-content: space-between; border: 3px solid #dfe4ea; border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; transition: all 0.2s ease-in-out; min-height: 160px;}
         .voice-card:hover { border-color: #a5b1c2; transform: translateY(-3px); }
         .voice-card.selected { border-color: #3498db; background-color: #ecf5fd; transform: translateY(-3px); box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2); }
-        .voice-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .voice-card .voice-name { font-weight: 600; color: #2c3e50; font-size: 13px; }
-        .prompt-preview { background-color: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; padding: 15px; margin-top: 10px; font-family: 'Courier New', Courier, monospace; font-size: 14px; color: #495057; white-space: pre-wrap; word-wrap: break-word; max-height: 150px; overflow-y: auto; }
+        .voice-card img { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-bottom: 8px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); align-self: center; }
+        .voice-card .voice-name { font-weight: 600; color: #2c3e50; font-size: 14px; }
+        .voice-card .voice-specialty { font-size: 11px; color: #7f8c8d; margin-top: 5px; flex-grow: 1; }
+        .prompt-preview { background-color: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; padding: 15px; margin-top: 10px; font-family: 'Courier New', Courier, monospace; font-size: 14px; color: #495057; white-space: pre-wrap; word-wrap: break-word; }
         .button-container { text-align: center; margin-top: 30px; }
         button { background-color: #3498db; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
         button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
@@ -31,12 +32,12 @@
     <div class="container">
         <h1>Estúdio de Narração Virtual</h1>
 
-        <label for="text-input">1. Digite o Texto a ser Narrado</label>
+        <label>1. Digite o Texto</label>
         <textarea id="text-input" placeholder="Ex: A oferta que você esperava chegou!"></textarea>
 
         <div class="select-group">
             <div>
-                <label for="format-select">2. Escolha o Formato</label>
+                <label>2. Formato</label>
                 <select id="format-select">
                     <option value="spot_comercial">Spot Comercial</option>
                     <option value="carro_de_som">Carro de Som</option>
@@ -46,7 +47,7 @@
                 </select>
             </div>
             <div>
-                <label for="style-select">3. Escolha o Estilo</label>
+                <label>3. Estilo</label>
                 <select id="style-select">
                     <option value="padrao">Padrão</option>
                     <option value="impacto">Impacto</option>
@@ -55,14 +56,21 @@
             </div>
         </div>
         
-        <label for="prompt-preview-box">Preview do Prompt (Enviado para a IA)</label>
+        <label>Preview do Prompt (Enviado para a IA)</label>
         <div id="prompt-preview-box" class="prompt-preview">
             Selecione as opções e digite um texto para ver o prompt final aqui.
         </div>
         
-        <label>4. Escolha o Locutor(a) (clique para ouvir)</label>
-        <div id="voice-selection-grid" class="voice-grid">
-            <!-- Os cards dos locutores serão inseridos aqui pelo JavaScript -->
+        <!-- NOVA SEÇÃO DE LOCUTORAS -->
+        <label>4. Escolha a Locutora (clique para ouvir)</label>
+        <div id="female-voice-grid" class="voice-grid">
+            <!-- Cards das locutoras serão inseridos aqui -->
+        </div>
+
+        <!-- NOVA SEÇÃO DE LOCUTORES -->
+        <label>5. Escolha o Locutor (clique para ouvir)</label>
+        <div id="male-voice-grid" class="voice-grid">
+            <!-- Cards dos locutores serão inseridos aqui -->
         </div>
 
         <div class="button-container">
@@ -76,56 +84,57 @@
     <script>
         // --- BANCO DE DADOS DA APLICAÇÃO ---
         const prompts = {
-            spot_comercial: { padrao: "Read this in a standard, professional commercial voice. The tone should be clear, confident, and engaging:", impacto: "Deliver this like a powerful, attention-grabbing commercial spot. Use a strong, deep voice. The tone should be impactful and highly persuasive, like a movie trailer:", animada: "This requires an upbeat, energetic, and friendly tone suitable for a lively commercial. Sound excited, happy, and positive:" },
-            carro_de_som: { padrao: "This is for a 'sound car' advertisement. The voice needs to be very clear, loud, and with heavy emphasis. A classic announcer-like quality:", impacto: "A very high-energy 'sound car' voice. It should sound almost like shouting, but with controlled pitch:", animada: "narration car selling products on the street, super lively, retail:" },
-            vinheta: { padrao: "This is a short audio logo or station ID. Read it in a punchy, memorable, and professional broadcast style:", jovem: "A modern, fresh, and energetic style for a station ID aimed at a young audience:" },
-            vsl: { padrao: "Read this as a narrator for a video sales letter. The tone should be conversational, trustworthy, and persuasive:", urgente: "This is for a VSL with a sense of urgency. The pace should be slightly faster, the tone more intense:" },
-            audio_institucional: { padrao: "A corporate, institutional narration. The voice should be calm, serious, professional, and trustworthy:", inspirador: "An inspiring and motivational corporate tone. The voice should be warm and uplifting:" }
+            spot_comercial: { padrao: "Read this in a standard, professional commercial voice. The tone should be clear, confident, and engaging.", impacto: "Deliver this like a powerful, attention-grabbing commercial spot. Use a strong, deep voice. The tone should be impactful and highly persuasive, like a movie trailer.", animada: "This requires an upbeat, energetic, and friendly tone suitable for a lively commercial. Sound excited, happy, and positive." },
+            carro_de_som: { padrao: "This is for a 'sound car' advertisement. The voice needs to be very clear, loud, and with heavy emphasis. A classic announcer-like quality.", impacto: "A very high-energy 'sound car' voice. It should sound almost like shouting, but with controlled pitch." },
+            vinheta: { padrao: "This is a short audio logo or station ID. Read it in a punchy, memorable, and professional broadcast style.", jovem: "A modern, fresh, and energetic style for a station ID aimed at a young audience." },
+            vsl: { padrao: "Read this as a narrator for a video sales letter. The tone should be conversational, trustworthy, and persuasive.", urgente: "This is for a VSL with a sense of urgency. The pace should be slightly faster, the tone more intense." },
+            audio_institucional: { padrao: "A corporate, institutional narration. The voice should be calm, serious, professional, and trustworthy.", inspirador: "An inspiring and motivational corporate tone. The voice should be warm and uplifting." }
         };
 
         const voices = [
             // --- LOCUTORAS ---
-            { id: 'aoede', name: 'Laura', imageUrl: 'assets/images/aoede.jpg', audioUrl: 'assets/audio/aoede.wav' },
-            { id: 'autonoe', name: 'Beatriz', imageUrl: 'assets/images/autonoe.jpg', audioUrl: 'assets/audio/autonoe.wav' },
-            { id: 'callirrhoe', name: 'Vanessa', imageUrl: 'assets/images/callirrhoe.jpg', audioUrl: 'assets/audio/callirrhoe.wav' },
-            { id: 'charon', name: 'Diana', imageUrl: 'assets/images/charon.jpg', audioUrl: 'assets/audio/charon.wav' },
-            { id: 'despina', name: 'Helena', imageUrl: 'assets/images/despina.jpg', audioUrl: 'assets/audio/despina.wav' },
-            { id: 'euterpe', name: 'Júlia', imageUrl: 'assets/images/euterpe.jpg', audioUrl: 'assets/audio/euterpe.wav' },
-            { id: 'hyperion', name: 'Patrícia', imageUrl: 'assets/images/hyperion.jpg', audioUrl: 'assets/audio/hyperion.wav' },
-            { id: 'pulcherrima', name: 'Camila', imageUrl: 'assets/images/pulcherrima.jpg', audioUrl: 'assets/audio/pulcherrima.wav' },
-            { id: 'umbriel', name: 'Mariana', imageUrl: 'assets/images/umbriel.jpg', audioUrl: 'assets/audio/umbriel.wav' },
-            { id: 'vindemiatrix', name: 'Amanda', imageUrl: 'assets/images/vindemiatrix.jpg', audioUrl: 'assets/audio/vindemiatrix.wav' },
+            { id: 'aoede', name: 'Laura', gender: 'F', specialty: 'Ideal para narração e leitura de textos longos', imageUrl: 'assets/images/aoede.jpg', audioUrl: 'assets/audio/aoede.wav' },
+            { id: 'autonoe', name: 'Beatriz', gender: 'F', specialty: 'Ótima para personagens e vozes de assistente', imageUrl: 'assets/images/autonoe.jpg', audioUrl: 'assets/audio/autonoe.wav' },
+            { id: 'callirrhoe', name: 'Vanessa', gender: 'F', specialty: 'Excelente para vozes de personagens diversos', imageUrl: 'assets/images/callirrhoe.jpg', audioUrl: 'assets/audio/callirrhoe.wav' },
+            { id: 'charon', name: 'Diana', gender: 'F', specialty: 'Voz de assistente, clara e conversacional', imageUrl: 'assets/images/charon.jpg', audioUrl: 'assets/audio/charon.wav' },
+            { id: 'despina', name: 'Helena', gender: 'F', specialty: 'Perfeita para narração informativa e didática', imageUrl: 'assets/images/despina.jpg', audioUrl: 'assets/audio/despina.wav' },
+            { id: 'euterpe', name: 'Júlia', gender: 'F', specialty: 'Versátil para assistentes e personagens', imageUrl: 'assets/images/euterpe.jpg', audioUrl: 'assets/audio/euterpe.wav' },
+            { id: 'hyperion', name: 'Patrícia', gender: 'F', specialty: 'Boa para leitura de textos e narração', imageUrl: 'assets/images/hyperion.jpg', audioUrl: 'assets/audio/hyperion.wav' },
+            { id: 'pulcherrima', name: 'Camila', gender: 'F', specialty: 'Ideal para voz de assistente e tutoriais', imageUrl: 'assets/images/pulcherrima.jpg', audioUrl: 'assets/audio/pulcherrima.wav' },
+            { id: 'umbriel', name: 'Mariana', gender: 'F', specialty: 'Voz de personagem, energética e expressiva', imageUrl: 'assets/images/umbriel.jpg', audioUrl: 'assets/audio/umbriel.wav' },
+            { id: 'vindemiatrix', name: 'Amanda', gender: 'F', specialty: 'Excelente para narração de conteúdo', imageUrl: 'assets/images/vindemiatrix.jpg', audioUrl: 'assets/audio/vindemiatrix.wav' },
             // --- LOCUTORES ---
-            { id: 'achernar', name: 'Lucas', imageUrl: 'assets/images/achernar.jpg', audioUrl: 'assets/audio/achernar.wav' },
-            { id: 'achird', name: 'André', imageUrl: 'assets/images/achird.jpg', audioUrl: 'assets/audio/achird.wav' },
-            { id: 'algenib', name: 'Fábio', imageUrl: 'assets/images/algenib.jpg', audioUrl: 'assets/audio/algenib.wav' },
-            { id: 'algieba', name: 'Bruno', imageUrl: 'assets/images/algieba.jpg', audioUrl: 'assets/audio/algieba.wav' },
-            { id: 'alnilam', name: 'Gustavo', imageUrl: 'assets/images/alnilam.jpg', audioUrl: 'assets/audio/alnilam.wav' },
-            { id: 'dione', name: 'Rafael', imageUrl: 'assets/images/dione.jpg', audioUrl: 'assets/audio/dione.wav' },
-            { id: 'encladus', name: 'Sérgio', imageUrl: 'assets/images/encladus.jpg', audioUrl: 'assets/audio/encladus.wav' },
-            { id: 'erinome', name: 'Thiago', imageUrl: 'assets/images/erinome.jpg', audioUrl: 'assets/audio/erinome.wav' },
-            { id: 'fenrir', name: 'Eduardo', imageUrl: 'assets/images/fenrir.jpg', audioUrl: 'assets/audio/fenrir.wav' },
-            { id: 'gacrux', name: 'Leandro', imageUrl: 'assets/images/gacrux.jpg', audioUrl: 'assets/audio/gacrux.wav' },
-            { id: 'iapetus', name: 'Ricardo', imageUrl: 'assets/images/iapetus.jpg', audioUrl: 'assets/audio/iapetus.wav' },
-            { id: 'kore', name: 'Vitor', imageUrl: 'assets/images/kore.jpg', audioUrl: 'assets/audio/kore.wav' },
-            { id: 'laomedeia', name: 'Rodrigo', imageUrl: 'assets/images/laomedeia.jpg', audioUrl: 'assets/audio/laomedeia.wav' },
-            { id: 'leda', name: 'Felipe', imageUrl: 'assets/images/leda.jpg', audioUrl: 'assets/audio/leda.wav' },
-            { id: 'orus', name: 'Fernando', imageUrl: 'assets/images/orus.jpg', audioUrl: 'assets/audio/orus.wav' },
-            { id: 'puck', name: 'Paulo', imageUrl: 'assets/images/puck.jpg', audioUrl: 'assets/audio/puck.wav' },
-            { id: 'rasalgethi', name: 'Cristiano', imageUrl: 'assets/images/rasalgethi.jpg', audioUrl: 'assets/audio/rasalgethi.wav' },
-            { id: 'sadachbia', name: 'Marcelo', imageUrl: 'assets/images/sadachbia.jpg', audioUrl: 'assets/audio/sadachbia.wav' },
-            { id: 'sadaltager', name: 'Guilherme', imageUrl: 'assets/images/sadaltager.jpg', audioUrl: 'assets/audio/sadaltager.wav' },
-            { id: 'schedar', name: 'Roberto', imageUrl: 'assets/images/schedar.jpg', audioUrl: 'assets/audio/schedar.wav' },
-            { id: 'sulafat', name: 'Alexandre', imageUrl: 'assets/images/sulafat.jpg', audioUrl: 'assets/audio/sulafat.wav' },
-            { id: 'zephyr', name: 'Renato', imageUrl: 'assets/images/zephyr.jpg', audioUrl: 'assets/audio/zephyr.wav' },
-            { id: 'zubenelgenubi', name: 'Leonardo', imageUrl: 'assets/images/zubenelgenubi.jpg', audioUrl: 'assets/audio/zubenelgenubi.wav' }
+            { id: 'achernar', name: 'Lucas', gender: 'M', specialty: 'Perfeito para narração e leitura', imageUrl: 'assets/images/achernar.jpg', audioUrl: 'assets/audio/achernar.wav' },
+            { id: 'achird', name: 'André', gender: 'M', specialty: 'Voz de assistente, clara e objetiva', imageUrl: 'assets/images/achird.jpg', audioUrl: 'assets/audio/achird.wav' },
+            { id: 'algenib', name: 'Fábio', gender: 'M', specialty: 'Ótimo para personagens e vozes criativas', imageUrl: 'assets/images/algenib.jpg', audioUrl: 'assets/audio/algenib.wav' },
+            { id: 'algieba', name: 'Bruno', gender: 'M', specialty: 'Excelente para vozes de personagens', imageUrl: 'assets/images/algieba.jpg', audioUrl: 'assets/audio/algieba.wav' },
+            { id: 'alnilam', name: 'Gustavo', gender: 'M', specialty: 'Ideal para narração de documentários', imageUrl: 'assets/images/alnilam.jpg', audioUrl: 'assets/audio/alnilam.wav' },
+            { id: 'dione', name: 'Rafael', gender: 'M', specialty: 'Voz de assistente, confiável e direta', imageUrl: 'assets/images/dione.jpg', audioUrl: 'assets/audio/dione.wav' },
+            { id: 'encladus', name: 'Sérgio', gender: 'M', specialty: 'Voz de personagem, versátil e adaptável', imageUrl: 'assets/images/encladus.jpg', audioUrl: 'assets/audio/encladus.wav' },
+            { id: 'erinome', name: 'Thiago', gender: 'M', specialty: 'Perfeito para assistentes virtuais', imageUrl: 'assets/images/erinome.jpg', audioUrl: 'assets/audio/erinome.wav' },
+            { id: 'fenrir', name: 'Eduardo', gender: 'M', specialty: 'Bom para narração de textos e e-learning', imageUrl: 'assets/images/fenrir.jpg', audioUrl: 'assets/audio/fenrir.wav' },
+            { id: 'gacrux', name: 'Leandro', gender: 'M', specialty: 'Ótimo para leitura e narração de conteúdo', imageUrl: 'assets/images/gacrux.jpg', audioUrl: 'assets/audio/gacrux.wav' },
+            { id: 'iapetus', name: 'Ricardo', gender: 'M', specialty: 'Voz de assistente e conversacional', imageUrl: 'assets/images/iapetus.jpg', audioUrl: 'assets/audio/iapetus.wav' },
+            { id: 'kore', name: 'Vitor', gender: 'M', specialty: 'Ideal para vozes de personagens e jogos', imageUrl: 'assets/images/kore.jpg', audioUrl: 'assets/audio/kore.wav' },
+            { id: 'laomedeia', name: 'Rodrigo', gender: 'M', specialty: 'Voz de narração, clara e profissional', imageUrl: 'assets/images/laomedeia.jpg', audioUrl: 'assets/audio/laomedeia.wav' },
+            { id: 'leda', name: 'Felipe', gender: 'M', specialty: 'Excelente para assistente e aplicações', imageUrl: 'assets/images/leda.jpg', audioUrl: 'assets/audio/leda.wav' },
+            { id: 'orus', name: 'Fernando', gender: 'M', specialty: 'Ótimo para narração de documentários e vídeos', imageUrl: 'assets/images/orus.jpg', audioUrl: 'assets/audio/orus.wav' },
+            { id: 'puck', name: 'Paulo', gender: 'M', specialty: 'Voz de personagem, expressiva e criativa', imageUrl: 'assets/images/puck.jpg', audioUrl: 'assets/audio/puck.wav' },
+            { id: 'rasalgethi', name: 'Cristiano', gender: 'M', specialty: 'Bom para leitura e narração de livros', imageUrl: 'assets/images/rasalgethi.jpg', audioUrl: 'assets/audio/rasalgethi.wav' },
+            { id: 'sadachbia', name: 'Marcelo', gender: 'M', specialty: 'Perfeito para voz de assistente', imageUrl: 'assets/images/sadachbia.jpg', audioUrl: 'assets/audio/sadachbia.wav' },
+            { id: 'sadaltager', name: 'Guilherme', gender: 'M', specialty: 'Voz de personagem, versátil e clara', imageUrl: 'assets/images/sadaltager.jpg', audioUrl: 'assets/audio/sadaltager.wav' },
+            { id: 'schedar', name: 'Roberto', gender: 'M', specialty: 'Ideal para narração de conteúdo educacional', imageUrl: 'assets/images/schedar.jpg', audioUrl: 'assets/audio/schedar.wav' },
+            { id: 'sulafat', name: 'Alexandre', gender: 'M', specialty: 'Ótimo para assistente e voz de sistema', imageUrl: 'assets/images/sulafat.jpg', audioUrl: 'assets/audio/sulafat.wav' },
+            { id: 'zephyr', name: 'Renato', gender: 'M', specialty: 'Voz de personagem, jovem e energética', imageUrl: 'assets/images/zephyr.jpg', audioUrl: 'assets/audio/zephyr.wav' },
+            { id: 'zubenelgenubi', name: 'Leonardo', gender: 'M', specialty: 'Excelente para narração longa e audiobooks', imageUrl: 'assets/images/zubenelgenubi.jpg', audioUrl: 'assets/audio/zubenelgenubi.wav' }
         ];
 
         // --- LÓGICA DA PÁGINA ---
         const textInput = document.getElementById('text-input');
         const formatSelect = document.getElementById('format-select');
         const styleSelect = document.getElementById('style-select');
-        const voiceGrid = document.getElementById('voice-selection-grid');
+        const femaleVoiceGrid = document.getElementById('female-voice-grid');
+        const maleVoiceGrid = document.getElementById('male-voice-grid');
         const generateBtn = document.getElementById('generate-btn');
         const statusMessage = document.getElementById('status-message');
         const audioPlayer = document.getElementById('audio-player');
@@ -148,23 +157,39 @@
         }
 
         function renderVoiceCards() {
-            voiceGrid.innerHTML = '';
-            voices.forEach(voice => {
+            // Limpa as grades existentes
+            femaleVoiceGrid.innerHTML = '';
+            maleVoiceGrid.innerHTML = '';
+
+            // Filtra as vozes por gênero
+            const femaleVoices = voices.filter(v => v.gender === 'F');
+            const maleVoices = voices.filter(v => v.gender === 'M');
+            
+            // Função auxiliar para criar e adicionar um card
+            const createCard = (voice, grid) => {
                 const isSelected = voice.id === selectedVoiceId;
                 const card = document.createElement('div');
                 card.className = `voice-card ${isSelected ? 'selected' : ''}`;
                 card.setAttribute('data-voice-id', voice.id);
-                card.innerHTML = `<img src="${voice.imageUrl}" alt="Locutor(a) ${voice.name}"><div class="voice-name">${voice.name}</div>`;
+                card.innerHTML = `
+                    <img src="${voice.imageUrl}" alt="Locutor(a) ${voice.name}">
+                    <div class="voice-name">${voice.name}</div>
+                    <div class="voice-specialty">${voice.specialty}</div>
+                `;
                 card.addEventListener('click', () => handleVoiceSelection(voice));
-                voiceGrid.appendChild(card);
-            });
+                grid.appendChild(card);
+            };
+
+            // Renderiza os cards em suas respectivas grades
+            femaleVoices.forEach(voice => createCard(voice, femaleVoiceGrid));
+            maleVoices.forEach(voice => createCard(voice, maleVoiceGrid));
         }
 
         function handleVoiceSelection(voice) {
             selectedVoiceId = voice.id;
             audioSample.src = voice.audioUrl;
             audioSample.play().catch(e => console.error("Erro ao tocar amostra:", e));
-            renderVoiceCards();
+            renderVoiceCards(); // Re-renderiza para atualizar a seleção visual em ambas as grades
         }
 
         generateBtn.addEventListener('click', async () => {
@@ -210,10 +235,12 @@
             }
         });
 
+        // Adiciona os gatilhos para atualizar o preview
         textInput.addEventListener('input', updatePromptPreview);
         formatSelect.addEventListener('change', updatePromptPreview);
         styleSelect.addEventListener('change', updatePromptPreview);
         
+        // Carregamento inicial da página
         window.addEventListener('DOMContentLoaded', () => {
             renderVoiceCards();
             updatePromptPreview();
