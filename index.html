@@ -5,82 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Narração Virtual</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f7f9;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            text-align: left;
-            font-weight: bold;
-            color: #555;
-            margin-bottom: 8px;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #dfe4ea;
-            font-size: 16px;
-            line-height: 1.5;
-            resize: vertical;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-        }
-        .select-group {
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .container { background-color: #ffffff; padding: 40px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); width: 100%; max-width: 700px; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
+        label { display: block; text-align: left; font-weight: bold; color: #555; margin-bottom: 8px; margin-top: 20px; }
+        textarea { width: 100%; height: 120px; padding: 15px; border-radius: 8px; border: 1px solid #dfe4ea; font-size: 16px; resize: vertical; box-sizing: border-box; }
+        .select-group { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #dfe4ea; font-size: 16px; background-color: #fff; cursor: pointer; }
+        
+        /* NOVO ESTILO PARA A GRADE DE VOZES */
+        .voice-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
         }
-        select {
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid #dfe4ea;
-            font-size: 16px;
-            background-color: #fff;
-            cursor: pointer;
-        }
-        .button-container {
+        .voice-card {
+            border: 3px solid #dfe4ea;
+            border-radius: 12px;
+            padding: 10px;
             text-align: center;
-            margin-top: 30px;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.1s ease;
+            transition: all 0.2s ease-in-out;
         }
-        button:hover { background-color: #2980b9; }
-        button:active { transform: scale(0.98); }
+        .voice-card:hover {
+            border-color: #a5b1c2;
+            transform: translateY(-3px);
+        }
+        .voice-card.selected {
+            border-color: #3498db;
+            background-color: #ecf5fd;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
+        }
+        .voice-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 8px;
+            border: 2px solid #fff;
+        }
+        .voice-card .voice-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .button-container { text-align: center; margin-top: 30px; }
+        button { background-color: #3498db; color: white; border: none; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; }
         button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
         .status { text-align: center; margin-top: 20px; font-weight: 500; min-height: 24px; }
         audio { width: 100%; margin-top: 20px; display: none; }
@@ -111,24 +83,14 @@
                     <option value="padrao">Padrão</option>
                     <option value="impacto">Impacto</option>
                     <option value="animada">Animada</option>
-                    <option value="varejo">Varejo</option>
-                    <option value="jovem">Jovem</option>
-                    <option value="urgente">Urgente</option>
-                    <option value="inspirador">Inspirador</option>
                 </select>
             </div>
         </div>
         
-        <div>
-            <label for="voice-select">4. Escolha o Locutor(a)</label>
-            <select id="voice-select">
-                <option value="Sadaltager">Jorge Souza</option>
-                <option value="Calypso">Voz Feminina 2</option>
-                <option value="Euterpe">Voz Feminina 3</option>
-                <option value="Dione">Voz Masculina 1</option>
-                <option value="Iapetus">Voz Masculina 2</option>
-                <option value="Hyperion">Voz Masculina 3</option>
-            </select>
+        <!-- NOVA SEÇÃO DE SELEÇÃO DE VOZ -->
+        <label>4. Escolha o Locutor(a) (clique para ouvir)</label>
+        <div id="voice-selection-grid" class="voice-grid">
+            <!-- Os cards dos locutores serão inseridos aqui pelo JavaScript -->
         </div>
 
         <div class="button-container">
@@ -140,55 +102,75 @@
     </div>
 
     <script>
-        // --- CÉREBRO DOS PROMPTS ---
-        // Este objeto contém todos os nossos prompts pré-definidos em inglês.
-        // Você pode adicionar mais formatos e estilos aqui!
+        // --- BANCO DE DADOS DA APLICAÇÃO ---
         const prompts = {
-            spot_comercial: {
-                padrao: "Read this in a standard, professional commercial voice. The tone should be clear, confident, and engaging:",
-                impacto: "Deliver this like a powerful, attention-grabbing commercial spot. Use a strong, deep voice. The tone should be impactful and highly persuasive, like a movie trailer:",
-                animada: "This requires an upbeat, energetic tone and fast narration speed, suitable for an animated commercial. Sound upbeat, happy, and positive:",
-                varejo: "Announce this in a classic retail advertising style. Clear, slightly fast-paced, and focused on a call to action, like announcing a big sale:"
-            },
-            carro_de_som: {
-                padrao: "This is for a 'sound car' advertisement. The voice needs to be very clear, loud, and with heavy emphasis to be heard from a distance. A classic announcer-like quality:",
-                impacto: "A very high-energy 'sound car' voice. It should sound almost like shouting, but with controlled pitch. Use echo and a booming effect in the tone:"
-            },
-            vinheta: {
-                padrao: "This is a short audio logo or station ID. Read it in a punchy, memorable, and professional broadcast style. Often with a deeper, resonant tone:",
-                jovem: "A modern, fresh, and energetic style for a station ID aimed at a young audience. Fast-paced and cool:"
-            },
-            vsl: {
-                padrao: "Read this as a narrator for a video sales letter. The tone should be conversational, trustworthy, and persuasive, building curiosity and rapport with the listener:",
-                urgente: "This is for a VSL with a sense of urgency. The pace should be slightly faster, the tone more intense, emphasizing scarcity and the need for immediate action."
-            },
-            audio_institucional: {
-                padrao: "A corporate, institutional narration. The voice should be calm, serious, professional, and trustworthy. The pace is measured and clear:",
-                inspirador: "An inspiring and motivational corporate tone. The voice should be warm, uplifting, and convey a sense of vision and optimism:"
-            }
+            spot_comercial: { padrao: "Read this in a standard, professional commercial voice. The tone should be clear, confident, and engaging.", impacto: "Deliver this like a powerful, attention-grabbing commercial spot. Use a strong, deep voice. The tone should be impactful and highly persuasive, like a movie trailer.", animada: "This requires an upbeat, energetic, and friendly tone suitable for a lively commercial. Sound excited, happy, and positive." },
+            carro_de_som: { padrao: "This is for a 'sound car' advertisement. The voice needs to be very clear, loud, and with heavy emphasis. A classic announcer-like quality.", impacto: "A very high-energy 'sound car' voice. It should sound almost like shouting, but with controlled pitch." },
+            vinheta: { padrao: "This is a short audio logo or station ID. Read it in a punchy, memorable, and professional broadcast style.", jovem: "A modern, fresh, and energetic style for a station ID aimed at a young audience." },
+            vsl: { padrao: "Read this as a narrator for a video sales letter. The tone should be conversational, trustworthy, and persuasive.", urgente: "This is for a VSL with a sense of urgency. The pace should be slightly faster, the tone more intense." },
+            audio_institucional: { padrao: "A corporate, institutional narration. The voice should be calm, serious, professional, and trustworthy.", inspirador: "An inspiring and motivational corporate tone. The voice should be warm and uplifting." }
         };
+
+        // NOVO BANCO DE DADOS PARA AS VOZES
+        const voices = [
+            { id: 'Aoede', name: 'Laura', gender: 'F', imageUrl: 'https://placehold.co/100x100/f8c291/2c3e50?text=L', audioUrl: 'assets/audio/Aoede.wav' },
+            { id: 'Calypso', name: 'Sofia', gender: 'F', imageUrl: 'https://placehold.co/100x100/e58e26/2c3e50?text=S', audioUrl: 'assets/audio/Calypso.wav' },
+            { id: 'Euterpe', name: 'Clara', gender: 'F', imageUrl: 'https://placehold.co/100x100/f0932b/2c3e50?text=C', audioUrl: 'assets/audio/Euterpe.wav' },
+            { id: 'Dione', name: 'Marcos', gender: 'M', imageUrl: 'https://placehold.co/100x100/30336b/ecf0f1?text=M', audioUrl: 'assets/audio/Dione.wav' },
+            { id: 'Iapetus', name: 'Ricardo', gender: 'M', imageUrl: 'https://placehold.co/100x100/130f40/ecf0f1?text=R', audioUrl: 'assets/audio/Iapetus.wav' },
+            { id: 'Hyperion', name: 'Daniel', gender: 'M', imageUrl: 'https://placehold.co/100x100/0c2461/ecf0f1?text=D', audioUrl: 'assets/audio/Hyperion.wav' }
+        ];
 
         // --- LÓGICA DA PÁGINA ---
         const textInput = document.getElementById('text-input');
         const formatSelect = document.getElementById('format-select');
         const styleSelect = document.getElementById('style-select');
-        const voiceSelect = document.getElementById('voice-select');
+        const voiceGrid = document.getElementById('voice-selection-grid');
         const generateBtn = document.getElementById('generate-btn');
         const statusMessage = document.getElementById('status-message');
         const audioPlayer = document.getElementById('audio-player');
+        
+        let selectedVoiceId = voices[0].id; // Inicia com a primeira voz selecionada
+        let audioSample = new Audio(); // Cria um único elemento de áudio para as amostras
 
+        // FUNÇÃO PARA RENDERIZAR OS CARDS DOS LOCUTORES
+        function renderVoiceCards() {
+            voiceGrid.innerHTML = ''; // Limpa a grade
+            voices.forEach(voice => {
+                const isSelected = voice.id === selectedVoiceId;
+                const card = document.createElement('div');
+                card.className = `voice-card ${isSelected ? 'selected' : ''}`;
+                card.setAttribute('data-voice-id', voice.id);
+                card.innerHTML = `
+                    <img src="${voice.imageUrl}" alt="Locutor(a) ${voice.name}">
+                    <div class="voice-name">${voice.name}</div>
+                `;
+                // Adiciona o evento de clique em cada card
+                card.addEventListener('click', () => handleVoiceSelection(voice));
+                voiceGrid.appendChild(card);
+            });
+        }
+
+        // FUNÇÃO PARA LIDAR COM A SELEÇÃO DE VOZ
+        function handleVoiceSelection(voice) {
+            // Atualiza o ID da voz selecionada
+            selectedVoiceId = voice.id;
+            
+            // Toca a amostra de áudio
+            audioSample.src = voice.audioUrl;
+            audioSample.play().catch(e => console.error("Erro ao tocar amostra:", e));
+
+            // Re-renderiza os cards para mostrar a nova seleção
+            renderVoiceCards();
+        }
+
+        // Evento de clique no botão principal de gerar narração
         generateBtn.addEventListener('click', async () => {
             const text = textInput.value.trim();
             const format = formatSelect.value;
             const style = styleSelect.value;
-            const voice = voiceSelect.value;
-
-            // Pega o prompt de estilo pré-definido do nosso objeto "prompts".
-            // Inclui uma verificação para evitar erros se uma combinação não existir,
-            // usando um prompt padrão como fallback.
-            const stylePrompt = (prompts[format] && prompts[format][style]) 
-                ? prompts[format][style] 
-                : prompts.spot_comercial.padrao;
+            
+            const stylePrompt = (prompts[format] && prompts[format][style]) ? prompts[format][style] : prompts.spot_comercial.padrao;
 
             if (!text) {
                 statusMessage.textContent = 'Por favor, digite um texto para gerar o áudio.';
@@ -207,14 +189,13 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         text: text, 
-                        voice: voice, 
-                        style: stylePrompt // Envia o prompt construído
+                        voice: selectedVoiceId, // Usa a variável que guarda a voz selecionada
+                        style: stylePrompt 
                     }),
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Ocorreu um erro no servidor.');
+                    const errorData = await response.json(); throw new Error(errorData.error || 'Ocorreu um erro no servidor.');
                 }
                 
                 const audioBlob = await response.blob();
@@ -222,10 +203,8 @@
                 audioPlayer.src = audioUrl;
                 audioPlayer.style.display = 'block';
                 audioPlayer.play();
-
                 statusMessage.textContent = 'Áudio gerado com sucesso!';
                 statusMessage.style.color = '#2ecc71';
-
             } catch (error) {
                 console.error('Erro:', error);
                 statusMessage.textContent = `Erro ao gerar áudio: ${error.message}`;
@@ -234,6 +213,9 @@
                 generateBtn.disabled = false;
             }
         });
+        
+        // Roda a função para criar os cards assim que a página carrega
+        window.addEventListener('DOMContentLoaded', renderVoiceCards);
     </script>
 </body>
 </html>
