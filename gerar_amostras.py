@@ -4,7 +4,7 @@ from google import genai
 from google.genai import types
 
 # Lista de todas as vozes disponíveis
-VOZES = ["Aoede", "Calypso", "Euterpe", "Dione", "Iapetus", "Hyperion"]
+VOZES = ["aoede", "autonoe", "callirrhoe", "achernar", "iapetus", "algenib"]
 TEXTO_AMOSTRA = "Olá, esta é uma demonstração da minha voz."
 
 def generate_sample(voice_name: str):
