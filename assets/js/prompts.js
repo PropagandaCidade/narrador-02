@@ -1,6 +1,6 @@
 // --- BANCO DE DADOS DE OPÇÕES E PROMPTS ---
 
-// Opções que aparecerão nos menus <select>
+// Opções que aparecerão nos menus <select> de Formato
 const formatOptions = [
     { value: 'spot_comercial', text: 'Spot Comercial' },
     { value: 'carro_de_som', text: 'Carro de Som' },
@@ -16,6 +16,7 @@ const formatOptions = [
     { value: 'post_em_audio', text: 'Post em Áudio' }
 ];
 
+// Opções que aparecerão nos menus <select> de Estilo
 const styleOptions = [
     { value: 'padrao', text: 'Padrão' },
     { value: 'impacto', text: 'Impacto' },
@@ -24,7 +25,7 @@ const styleOptions = [
     { value: 'caricata', text: 'Caricata' }
 ];
 
-// Mapeamento completo dos prompts em inglês
+// Mapeamento completo dos prompts em inglês por Formato e Estilo
 const prompts = {
     spot_comercial: {
         padrao: "A clear, friendly, and professional voice for a standard commercial advertisement:",
@@ -110,4 +111,24 @@ const prompts = {
         varejo: "A fast-paced, urgent voice emphasizing deals in a short audio post format:",
         caricata: "A silly and over-the-top voice for a comedic audio post, with playful and exaggerated intonation:"
     }
+};
+
+// --- NOVAS CONSTANTES PARA VELOCIDADE ---
+
+// Opções para o menu de Velocidade
+const speedOptions = [
+    { value: '1', text: '1. Lento' },
+    { value: '2', text: '2. Normal' },
+    { value: '3', text: '3. Rápido' },
+    { value: '4', text: '4. Super Rápido' },
+    { value: '5', text: '5. Mega Rápido' }
+];
+
+// Mapeamento dos valores de velocidade para os prompts em inglês
+const speedPrompts = {
+    '1': "Read at a slow and deliberate pace.",
+    '2': "", // Deixamos vazio, pois "normal" não precisa de instrução extra
+    '3': "Read at a fast pace.",
+    '4': "Read at a very fast pace.",
+    '5': "Read at an extremely fast pace, as fast as possible while maintaining clarity."
 };
