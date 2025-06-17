@@ -12,7 +12,7 @@ const voices = [
     { id: 'zephyr', name: 'Mariana', gender: 'F', specialty: 'Voz de personagem, energética e expressiva', imageUrl: 'assets/images/zephyr.jpg', audioUrl: 'assets/audio/zephyr.wav' },
     { id: 'kore', name: 'Amanda', gender: 'F', specialty: 'Excelente para narração de conteúdo', imageUrl: 'assets/images/kore.jpg', audioUrl: 'assets/audio/kore.wav' },
     // --- LOCUTORES ---
-    { id: 'achernar', name: 'Lucas', gender: 'M', specialty: 'Perfeito para narração e leitura', imageUrl: 'assets/images/achernar.jpg', audioUrl: 'assets/audio/achernar.wav' },
+    { id: 'achird', name: 'Lucas', gender: 'M', specialty: 'Perfeito para narração e leitura', imageUrl: 'assets/images/achird.jpg', audioUrl: 'assets/audio/achird.wav' },
     { id: 'achird', name: 'André', gender: 'M', specialty: 'Voz de assistente, clara e objetiva', imageUrl: 'assets/images/achird.jpg', audioUrl: 'assets/audio/achird.wav' },
     { id: 'algenib', name: 'Fábio', gender: 'M', specialty: 'Ótimo para personagens e vozes criativas', imageUrl: 'assets/images/algenib.jpg', audioUrl: 'assets/audio/algenib.wav' },
     { id: 'algieba', name: 'Bruno', gender: 'M', specialty: 'Excelente para vozes de personagens', imageUrl: 'assets/images/algieba.jpg', audioUrl: 'assets/audio/algieba.wav' },
@@ -33,6 +33,6 @@ const voices = [
     { id: 'sadaltager', name: 'Guilherme', gender: 'M', specialty: 'Voz de personagem, versátil e clara', imageUrl: 'assets/images/sadaltager.jpg', audioUrl: 'assets/audio/sadaltager.wav' },
     { id: 'schedar', name: 'Roberto', gender: 'M', specialty: 'Ideal para narração de conteúdo educacional', imageUrl: 'assets/images/schedar.jpg', audioUrl: 'assets/audio/schedar.wav' },
     { id: 'sulafat', name: 'Alexandre', gender: 'M', specialty: 'Ótimo para assistente e voz de sistema', imageUrl: 'assets/images/sulafat.jpg', audioUrl: 'assets/audio/sulafat.wav' },
-    { id: 'zephyr', name: 'Renato', gender: 'M', specialty: 'Voz de personagem, jovem e energética', imageUrl: 'assets/images/zephyr.jpg', audioUrl: 'assets/audio/zephyr.wav' },
+    { id: 'zubenelgenubi', name: 'Renato', gender: 'M', specialty: 'Voz de personagem, jovem e energética', imageUrl: 'assets/images/zubenelgenubi.jpg', audioUrl: 'assets/audio/zubenelgenubi.wav' },
     { id: 'zubenelgenubi', name: 'Leonardo', gender: 'M', specialty: 'Excelente para narração longa e audiobooks', imageUrl: 'assets/images/zubenelgenubi.jpg', audioUrl: 'assets/audio/zubenelgenubi.wav' }
 ];
