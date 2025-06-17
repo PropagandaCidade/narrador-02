@@ -1,71 +1,23 @@
 import os
 import struct
 import io
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
 from google import genai
 from google.genai import types
-from google.api_core import exceptions as google_exceptions # Importa a classe de exceções
+from google.api_core import exceptions as google_exceptions
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, expose_headers=['X-Model-Used']) # 👈 IMPORTANTE: Expor o cabeçalho customizado
 
 # (As funções convert_to_wav e parse_audio_mime_type permanecem as mesmas)
 def convert_to_wav(audio_data: bytes, mime_type: str) -> bytes:
-    parameters = parse_audio_mime_type(mime_type)
-    bits_per_sample = parameters["bits_per_sample"]
-    sample_rate = parameters["rate"]
-    num_channels = 1
-    data_size = len(audio_data)
-    bytes_per_sample = bits_per_sample // 8
-    block_align = num_channels * bytes_per_sample
-    byte_rate = sample_rate * block_align
-    chunk_size = 36 + data_size
-    header = struct.pack(
-        "<4sI4s4sIHHIIHH4sI",
-        b"RIFF", chunk_size, b"WAVE", b"fmt ", 16, 1,
-        num_channels, sample_rate, byte_rate, block_align,
-        bits_per_sample, b"data", data_size
-    )
-    return header + audio_data
-
+    # ... código sem alterações ...
 def parse_audio_mime_type(mime_type: str) -> dict[str, int | None]:
-    bits_per_sample = 16
-    rate = 24000
-    parts = mime_type.split(";")
-    for param in parts:
-        param = param.strip()
-        if param.lower().startswith("rate="):
-            try:
-                rate_str = param.split("=", 1)[1]
-                rate = int(rate_str)
-            except (ValueError, IndexError):
-                pass
-        elif param.startswith("audio/L"):
-            try:
-                bits_per_sample = int(param.split("L", 1)[1])
-            except (ValueError, IndexError):
-                pass
-    return {"bits_per_sample": bits_per_sample, "rate": rate}
+    # ... código sem alterações ...
 
 def generate_audio_from_model(client, model_name, contents, config):
-    """Função auxiliar para gerar áudio com um modelo específico."""
-    print(f"Tentando gerar áudio com o modelo: {model_name}")
-    audio_buffer = bytearray()
-    audio_mime_type = "audio/L16;rate=24000"
-    
-    for chunk in client.models.generate_content_stream(model=model_name, contents=contents, config=config):
-        if (chunk.candidates and chunk.candidates[0].content and
-            chunk.candidates[0].content.parts and chunk.candidates[0].content.parts[0].inline_data and
-            chunk.candidates[0].content.parts[0].inline_data.data):
-            inline_data = chunk.candidates[0].content.parts[0].inline_data
-            audio_buffer.extend(inline_data.data)
-            audio_mime_type = inline_data.mime_type
-    
-    if not audio_buffer:
-        raise Exception("Não foi possível gerar dados de áudio com este modelo.")
-        
-    return convert_to_wav(bytes(audio_buffer), audio_mime_type)
+    # ... código sem alterações ...
 
 @app.route('/')
 def home():
@@ -75,7 +27,7 @@ def home():
 def generate_audio_endpoint():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        return jsonify({"error": "Configuração do servidor incompleta: Chave da API ausente."}), 500
+        return jsonify({"error": "Configuração do servidor incompleta"}), 500
 
     data = request.get_json()
     text_to_narrate = data.get('text')
@@ -87,7 +39,6 @@ def generate_audio_endpoint():
 
     client = genai.Client(api_key=api_key)
     
-    # Prepara o conteúdo e a configuração, que são os mesmos para ambos os modelos
     parts_list = []
     if style_instructions_text:
         parts_list.append(types.Part.from_text(text=style_instructions_text))
@@ -103,26 +54,30 @@ def generate_audio_endpoint():
         ),
     )
 
-    # --- LÓGICA DE FAILOVER ---
+    model_to_use = "Pro"
     try:
         # 1. Tenta com o modelo PRO (Premium)
         wav_data = generate_audio_from_model(client, "gemini-2.5-pro-preview-tts", contents, generate_content_config)
         print("Sucesso com o modelo Pro!")
-        return send_file(io.BytesIO(wav_data), mimetype='audio/wav', as_attachment=False)
-
+        
     except google_exceptions.ResourceExhausted as e:
-        # 2. Se o erro for de cota esgotada (ResourceExhausted), tenta com o modelo FLASH (Failover)
-        print(f"Cota do modelo Pro esgotada. Tentando com o modelo Flash. Erro original: {e}")
+        # 2. Se a cota do Pro esgotar, tenta com o modelo FLASH (Failover)
+        print(f"Cota do Pro esgotada. Tentando com o modelo Flash. Erro: {e}")
+        model_to_use = "Flash"
         try:
             wav_data = generate_audio_from_model(client, "gemini-2.5-flash-preview-tts", contents, generate_content_config)
             print("Sucesso com o modelo Flash (failover)!")
-            return send_file(io.BytesIO(wav_data), mimetype='audio/wav', as_attachment=False)
         except Exception as e_flash:
-            # Se até o modelo Flash falhar, retorna um erro final
             print(f"Falha também com o modelo Flash. Erro: {e_flash}")
-            return jsonify({"error": f"Ambos os modelos de narração estão indisponíveis no momento. Erro: {e_flash}"}), 500
+            return jsonify({"error": f"Ambos os modelos de narração estão indisponíveis. Erro: {e_flash}"}), 500
     
     except Exception as e:
-        # 3. Se o erro inicial for diferente de cota esgotada, retorna o erro
         print(f"Ocorreu um erro inesperado com o modelo Pro: {e}")
         return jsonify({"error": f"Erro ao contatar a API do Gemini: {e}"}), 500
+
+    # Cria a resposta de arquivo de áudio
+    response = make_response(send_file(io.BytesIO(wav_data), mimetype='audio/wav', as_attachment=False))
+    # Adiciona o cabeçalho customizado com o nome do modelo usado
+    response.headers['X-Model-Used'] = model_to_use
+    
+    return response
