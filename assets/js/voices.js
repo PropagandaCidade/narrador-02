@@ -1,0 +1,38 @@
+// --- BANCO DE DADOS DE LOCUTORES ---
+const voices = [
+    // --- LOCUTORAS ---
+    { id: 'aoede', name: 'Laura', gender: 'F', specialty: 'Ideal para narração e leitura de textos longos', imageUrl: 'assets/images/aoede.jpg', audioUrl: 'assets/audio/aoede.wav' },
+    { id: 'autonoe', name: 'Beatriz', gender: 'F', specialty: 'Ótima para personagens e vozes de assistente', imageUrl: 'assets/images/autonoe.jpg', audioUrl: 'assets/audio/autonoe.wav' },
+    { id: 'callirrhoe', name: 'Vanessa', gender: 'F', specialty: 'Excelente para vozes de personagens diversos', imageUrl: 'assets/images/callirrhoe.jpg', audioUrl: 'assets/audio/callirrhoe.wav' },
+    { id: 'charon', name: 'Diana', gender: 'F', specialty: 'Voz de assistente, clara e conversacional', imageUrl: 'assets/images/charon.jpg', audioUrl: 'assets/audio/charon.wav' },
+    { id: 'despina', name: 'Helena', gender: 'F', specialty: 'Perfeita para narração informativa e didática', imageUrl: 'assets/images/despina.jpg', audioUrl: 'assets/audio/despina.wav' },
+    { id: 'euterpe', name: 'Júlia', gender: 'F', specialty: 'Versátil para assistentes e personagens', imageUrl: 'assets/images/euterpe.jpg', audioUrl: 'assets/audio/euterpe.wav' },
+    { id: 'hyperion', name: 'Patrícia', gender: 'F', specialty: 'Boa para leitura de textos e narração', imageUrl: 'assets/images/hyperion.jpg', audioUrl: 'assets/audio/hyperion.wav' },
+    { id: 'pulcherrima', name: 'Camila', gender: 'F', specialty: 'Ideal para voz de assistente e tutoriais', imageUrl: 'assets/images/pulcherrima.jpg', audioUrl: 'assets/audio/pulcherrima.wav' },
+    { id: 'umbriel', name: 'Mariana', gender: 'F', specialty: 'Voz de personagem, energética e expressiva', imageUrl: 'assets/images/umbriel.jpg', audioUrl: 'assets/audio/umbriel.wav' },
+    { id: 'vindemiatrix', name: 'Amanda', gender: 'F', specialty: 'Excelente para narração de conteúdo', imageUrl: 'assets/images/vindemiatrix.jpg', audioUrl: 'assets/audio/vindemiatrix.wav' },
+    // --- LOCUTORES ---
+    { id: 'achernar', name: 'Lucas', gender: 'M', specialty: 'Perfeito para narração e leitura', imageUrl: 'assets/images/achernar.jpg', audioUrl: 'assets/audio/achernar.wav' },
+    { id: 'achird', name: 'André', gender: 'M', specialty: 'Voz de assistente, clara e objetiva', imageUrl: 'assets/images/achird.jpg', audioUrl: 'assets/audio/achird.wav' },
+    { id: 'algenib', name: 'Fábio', gender: 'M', specialty: 'Ótimo para personagens e vozes criativas', imageUrl: 'assets/images/algenib.jpg', audioUrl: 'assets/audio/algenib.wav' },
+    { id: 'algieba', name: 'Bruno', gender: 'M', specialty: 'Excelente para vozes de personagens', imageUrl: 'assets/images/algieba.jpg', audioUrl: 'assets/audio/algieba.wav' },
+    { id: 'alnilam', name: 'Gustavo', gender: 'M', specialty: 'Ideal para narração de documentários', imageUrl: 'assets/images/alnilam.jpg', audioUrl: 'assets/audio/alnilam.wav' },
+    { id: 'dione', name: 'Rafael', gender: 'M', specialty: 'Voz de assistente, confiável e direta', imageUrl: 'assets/images/dione.jpg', audioUrl: 'assets/audio/dione.wav' },
+    { id: 'encladus', name: 'Sérgio', gender: 'M', specialty: 'Voz de personagem, versátil e adaptável', imageUrl: 'assets/images/encladus.jpg', audioUrl: 'assets/audio/encladus.wav' },
+    { id: 'erinome', name: 'Thiago', gender: 'M', specialty: 'Perfeito para assistentes virtuais', imageUrl: 'assets/images/erinome.jpg', audioUrl: 'assets/audio/erinome.wav' },
+    { id: 'fenrir', name: 'Eduardo', gender: 'M', specialty: 'Bom para narração de textos e e-learning', imageUrl: 'assets/images/fenrir.jpg', audioUrl: 'assets/audio/fenrir.wav' },
+    { id: 'gacrux', name: 'Leandro', gender: 'M', specialty: 'Ótimo para leitura e narração de conteúdo', imageUrl: 'assets/images/gacrux.jpg', audioUrl: 'assets/audio/gacrux.wav' },
+    { id: 'iapetus', name: 'Ricardo', gender: 'M', specialty: 'Voz de assistente e conversacional', imageUrl: 'assets/images/iapetus.jpg', audioUrl: 'assets/audio/iapetus.wav' },
+    { id: 'kore', name: 'Vitor', gender: 'M', specialty: 'Ideal para vozes de personagens e jogos', imageUrl: 'assets/images/kore.jpg', audioUrl: 'assets/audio/kore.wav' },
+    { id: 'laomedeia', name: 'Rodrigo', gender: 'M', specialty: 'Voz de narração, clara e profissional', imageUrl: 'assets/images/laomedeia.jpg', audioUrl: 'assets/audio/laomedeia.wav' },
+    { id: 'leda', name: 'Felipe', gender: 'M', specialty: 'Excelente para assistente e aplicações', imageUrl: 'assets/images/leda.jpg', audioUrl: 'assets/audio/leda.wav' },
+    { id: 'orus', name: 'Fernando', gender: 'M', specialty: 'Ótimo para narração de documentários e vídeos', imageUrl: 'assets/images/orus.jpg', audioUrl: 'assets/audio/orus.wav' },
+    { id: 'puck', name: 'Paulo', gender: 'M', specialty: 'Voz de personagem, expressiva e criativa', imageUrl: 'assets/images/puck.jpg', audioUrl: 'assets/audio/puck.wav' },
+    { id: 'rasalgethi', name: 'Cristiano', gender: 'M', specialty: 'Bom para leitura e narração de livros', imageUrl: 'assets/images/rasalgethi.jpg', audioUrl: 'assets/audio/rasalgethi.wav' },
+    { id: 'sadachbia', name: 'Marcelo', gender: 'M', specialty: 'Perfeito para voz de assistente', imageUrl: 'assets/images/sadachbia.jpg', audioUrl: 'assets/audio/sadachbia.wav' },
+    { id: 'sadaltager', name: 'Guilherme', gender: 'M', specialty: 'Voz de personagem, versátil e clara', imageUrl: 'assets/images/sadaltager.jpg', audioUrl: 'assets/audio/sadaltager.wav' },
+    { id: 'schedar', name: 'Roberto', gender: 'M', specialty: 'Ideal para narração de conteúdo educacional', imageUrl: 'assets/images/schedar.jpg', audioUrl: 'assets/audio/schedar.wav' },
+    { id: 'sulafat', name: 'Alexandre', gender: 'M', specialty: 'Ótimo para assistente e voz de sistema', imageUrl: 'assets/images/sulafat.jpg', audioUrl: 'assets/audio/sulafat.wav' },
+    { id: 'zephyr', name: 'Renato', gender: 'M', specialty: 'Voz de personagem, jovem e energética', imageUrl: 'assets/images/zephyr.jpg', audioUrl: 'assets/audio/zephyr.wav' },
+    { id: 'zubenelgenubi', name: 'Leonardo', gender: 'M', specialty: 'Excelente para narração longa e audiobooks', imageUrl: 'assets/images/zubenelgenubi.jpg', audioUrl: 'assets/audio/zubenelgenubi.wav' }
+];
