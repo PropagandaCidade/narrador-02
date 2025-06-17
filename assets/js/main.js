@@ -14,31 +14,24 @@ const promptPreviewBox = document.getElementById('prompt-preview-box');
 const modelInfoDiv = document.getElementById('model-info');
 
 // Variáveis de estado da aplicação
-// A variável 'voices' é lida do arquivo voices.js
 let selectedVoiceId = voices[0].id;
-let audioSample = new Audio();
+let audioSample = new Audio(); // Nosso player de amostra único
 
 // --- FUNÇÕES ---
 
-// Função para popular os menus <select> dinamicamente
-// Ela usa 'formatOptions', 'styleOptions' e 'speedOptions' do arquivo prompts.js
 function populateSelectOptions() {
     formatOptions.forEach(opt => {
         formatSelect.add(new Option(opt.text, opt.value));
     });
-
     styleOptions.forEach(opt => {
         styleSelect.add(new Option(opt.text, opt.value));
     });
-
     speedOptions.forEach(opt => {
         speedSelect.add(new Option(opt.text, opt.value));
     });
-    
-    speedSelect.value = '2'; // Define a velocidade padrão como "2. Normal"
+    speedSelect.value = '2';
 }
 
-// Função para atualizar a caixa de preview do prompt
 function updatePromptPreview() {
     const text = textInput.value.trim();
     const format = formatSelect.value;
@@ -62,12 +55,9 @@ function updatePromptPreview() {
     }
 }
 
-// Função para renderizar os cards dos locutores nas grades corretas
-// Ela usa a variável 'voices' do arquivo voices.js
 function renderVoiceCards() {
     femaleVoiceGrid.innerHTML = '';
     maleVoiceGrid.innerHTML = '';
-
     const femaleVoices = voices.filter(v => v.gender === 'F');
     const maleVoices = voices.filter(v => v.gender === 'M');
     
@@ -89,15 +79,25 @@ function renderVoiceCards() {
     maleVoices.forEach(voice => createCard(voice, maleVoiceGrid));
 }
 
-// Função que lida com a seleção de uma voz
+// --- FUNÇÃO ATUALIZADA ---
 function handleVoiceSelection(voice) {
-    selectedVoiceId = voice.id;
-    audioSample.src = voice.audioUrl;
-    audioSample.play().catch(e => console.error("Erro ao tocar amostra:", e));
-    renderVoiceCards();
+    // Verifica se o card clicado é o mesmo que já está selecionado E se o áudio está tocando
+    if (voice.id === selectedVoiceId && !audioSample.paused) {
+        // Se sim, para o áudio e o rebobina para o início
+        audioSample.pause();
+        audioSample.currentTime = 0;
+    } else {
+        // Se for um novo card, ou se o mesmo card for clicado enquanto pausado,
+        // ele toca o áudio normalmente.
+        selectedVoiceId = voice.id;
+        audioSample.src = voice.audioUrl;
+        audioSample.play().catch(e => console.error("Erro ao tocar amostra:", e));
+        
+        // Atualiza a seleção visual
+        renderVoiceCards();
+    }
 }
 
-// Função principal de geração de áudio
 async function generateAudio() {
     const text = textInput.value.trim();
     const format = formatSelect.value;

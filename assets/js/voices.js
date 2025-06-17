@@ -30,6 +30,6 @@ const voices = [
     { id: 'schedar', name: 'Rodrigo', gender: 'M', specialty: 'Voz de narração, clara e profissional', imageUrl: 'assets/images/schedar.jpg', audioUrl: 'assets/audio/schedar.wav' },
     { id: 'rasalgethi', name: 'Felipe', gender: 'M', specialty: 'Excelente para assistente e aplicações', imageUrl: 'assets/images/rasalgethi.jpg', audioUrl: 'assets/audio/rasalgethi.wav' },
     { id: 'orus', name: 'Fernando', gender: 'M', specialty: 'Ótimo para narração de documentários e vídeos', imageUrl: 'assets/images/orus.jpg', audioUrl: 'assets/audio/orus.wav' },
-    { id: 'puck', name: 'Paulo', gender: 'M', specialty: 'Voz de personagem, expressiva e criativa', imageUrl: 'assets/images/puck.jpg', audioUrl: 'assets/audio/puck.wav' },
+    { id: 'puck', name: 'Paulo', gender: 'M', specialty: 'Voz de personagem, expressiva e criativa', imageUrl: 'assets/images/puck.jpg', audioUrl: 'assets/audio/puck.wav' }
     
 ];
