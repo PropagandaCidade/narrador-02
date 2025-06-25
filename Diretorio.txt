@@ -1,6 +1,0 @@
-narrador-virtual/
-├── app.py                 # Nosso servidor Flask (antigo servidor.py)
-├── passenger_wsgi.py      # Ponto de entrada para o servidor da Hostinger
-├── requirements.txt       # Lista de dependências Python
-└── templates/
-    └── index.html         # Nossa interface de usuário
