@@ -1,4 +1,4 @@
-# app.py - VERSÃO FINAL DE PRODUÇÃO
+# app.py - VERSÃO FINAL DE PRODUÇÃO (com correção de pronúncia)
 import os
 import io
 import mimetypes
@@ -11,6 +11,9 @@ from flask_cors import CORS
 from google import genai
 from google.genai import types
 from google.api_core import exceptions as google_exceptions
+
+# <-- 1. IMPORTA A NOVA FUNÇÃO DO "CÉREBRO AUXILIAR"
+from text_utils import correct_grammar_for_grams
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -63,6 +66,10 @@ def generate_audio_endpoint():
         return jsonify({"error": "Os campos de texto e voz são obrigatórios."}), 400
 
     try:
+        # <-- 2. APLICA A CORREÇÃO ANTES DE ENVIAR PARA A API
+        logger.info("Aplicando pré-processamento de texto para correção de pronúncia...")
+        corrected_text = correct_grammar_for_grams(text_to_process)
+        
         # Bloco principal de geração de áudio
         if model_nickname == 'pro':
             model_to_use_fullname = "gemini-2.5-pro-preview-tts"
@@ -85,8 +92,9 @@ def generate_audio_endpoint():
         )
         
         audio_data_chunks = []
+        # Usa o texto corrigido para gerar o áudio
         for chunk in client.models.generate_content_stream(
-            model=model_to_use_fullname, contents=text_to_process, config=generate_content_config
+            model=model_to_use_fullname, contents=corrected_text, config=generate_content_config
         ):
             if (chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts and chunk.candidates[0].content.parts[0].inline_data and chunk.candidates[0].content.parts[0].inline_data.data):
                 inline_data = chunk.candidates[0].content.parts[0].inline_data
