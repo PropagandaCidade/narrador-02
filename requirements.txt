@@ -1,5 +1,9 @@
-Flask
-Flask-Cors
-gunicorn
-google-genai
-google-api-core
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,5 +1,6 @@
+ Flask
+ Flask-Cors
+ gunicorn
++gevent
+ google-genai
+ google-api-core
