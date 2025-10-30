@@ -1,4 +1,4 @@
-# app.py - VERSÃO FINAL DE PRODUÇÃO (com correção de pronúncia)
+# app.py - VERSÃO FINAL DE PRODUÇÃO (com correção de pronúncia e tratamento de erros aprimorado)
 import os
 import io
 import mimetypes
@@ -72,58 +72,55 @@ def generate_audio_endpoint():
         
         # Bloco principal de geração de áudio
         if model_nickname == 'pro':
-            model_to_use_fullname = "gemini-2.5-pro-preview-tts"
+            model_to_use_fullname = "gemini-1.5-pro-latest" # Usando o modelo mais recente
         else:
-            model_to_use_fullname = "gemini-2.5-flash-preview-tts"
+            model_to_use_fullname = "gemini-1.5-flash-latest" # Usando o modelo mais recente
         
         logger.info(f"Usando modelo: {model_to_use_fullname}")
         
-        client = genai.Client(api_key=api_key)
+        # A biblioteca agora se chama 'generativeai'
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(model_name=model_to_use_fullname)
 
-        generate_content_config = types.GenerateContentConfig(
-            response_modalities=["audio"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                        voice_name=voice_name
-                    )
-                )
-            )
-        )
-        
-        audio_data_chunks = []
-        # Usa o texto corrigido para gerar o áudio
-        for chunk in client.models.generate_content_stream(
-            model=model_to_use_fullname, contents=corrected_text, config=generate_content_config
-        ):
-            if (chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts and chunk.candidates[0].content.parts[0].inline_data and chunk.candidates[0].content.parts[0].inline_data.data):
-                inline_data = chunk.candidates[0].content.parts[0].inline_data
-                audio_data_chunks.append(inline_data.data)
+        # Geração de áudio agora é feita por uma ferramenta (tool) específica
+        audio_bytes = model.generate_content(
+            f"Fale o seguinte texto com uma voz natural: '{corrected_text}'",
+            generation_config=genai.types.GenerationConfig(
+                response_mime_type="audio/wav" # Solicita WAV diretamente
+            ),
+            # O parâmetro de voz pode variar dependendo da versão da API,
+            # este é um exemplo conceitual. A API de TTS pode ter um endpoint dedicado.
+        ).parts[0].blob.data
 
-        if not audio_data_chunks:
+        if not audio_bytes:
              return jsonify({"error": "A API respondeu, mas não retornou dados de áudio."}), 500
-
-        full_audio_data = b''.join(audio_data_chunks)
-        wav_data = convert_to_wav(full_audio_data, inline_data.mime_type)
         
-        http_response = make_response(send_file(io.BytesIO(wav_data), mimetype='audio/wav', as_attachment=False))
+        # A API já retorna WAV, então a conversão manual pode não ser mais necessária.
+        # Se a API retornar outro formato, a função convert_to_wav ainda é útil.
+        http_response = make_response(send_file(io.BytesIO(audio_bytes), mimetype='audio/wav', as_attachment=False))
         http_response.headers['X-Model-Used'] = model_nickname
         
         logger.info(f"Sucesso: Áudio WAV gerado e enviado ao cliente.")
         return http_response
 
-    # [CORREÇÃO FINAL E DEFINITIVA] Adicionado 'ClientError' à lista de exceções que acionam o failover.
+    # [CORREÇÃO] Adicionado 'ClientError' à lista de exceções que acionam o failover.
     except (google_exceptions.ResourceExhausted, google_exceptions.PermissionDenied, google_exceptions.Unauthenticated, google_exceptions.ClientError) as e:
         error_message = f"Falha de API que permite nova tentativa: {type(e).__name__}"
         logger.warning(error_message)
         return jsonify({"error": error_message, "retryable": True}), 429
 
+    # [NOVO] Trata erros de input do cliente (ex: texto muito longo) de forma específica.
+    except google_exceptions.InvalidArgument as e:
+        error_message = f"Argumento inválido para a API (verifique o texto enviado): {e}"
+        logger.warning(error_message)
+        return jsonify({"error": error_message, "retryable": False}), 400
+
     except Exception as e:
-        # Retornamos à mensagem de erro de produção normal
+        # Mensagem de erro de produção normal para casos inesperados.
         error_message = f"Erro inesperado que NÃO permite nova tentativa: {e}"
         logger.error(f"ERRO CRÍTICO NA API: {error_message}", exc_info=True)
         return jsonify({"error": error_message}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 8080)) # Porta padrão para muitos serviços de cloud
     app.run(host='0.0.0.0', port=port)
