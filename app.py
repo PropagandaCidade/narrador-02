@@ -1,8 +1,7 @@
-# app.py - VERSÃO 20.0 - ARQUITETURA FINAL
-# DESCRIÇÃO: Esta versão implementa a arquitetura de "Fonte Única da Verdade".
-# A dependência do 'text_utils.py' foi COMPLETAMENTE REMOVIDA.
-# O script agora confia 100% no texto já normalizado que recebe do TextNormalizer.php
-# e atua apenas como um conector para a API de TTS.
+# app.py - VERSÃO 20.5 - O DEFINITIVO
+# DESCRIÇÃO: Baseado na versão 19.0.3. Usa os nomes de modelo EXATOS fornecidos pelo usuário.
+# A ÚNICA ALTERAÇÃO é a remoção completa da chamada para 'text_utils.py'.
+# Esta é a implementação final e correta da arquitetura.
 
 import os
 import io
@@ -17,59 +16,64 @@ from google.api_core import exceptions as google_exceptions
 
 from pydub import AudioSegment
 
-# Configuração do logging
+# --- [INÍCIO DA CORREÇÃO FINAL] ---
+# A linha que importava 'text_utils' foi REMOVIDA.
+# --- [FIM DA CORREÇÃO FINAL] ---
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Inicialização do Flask App
 app = Flask(__name__)
 CORS(app, expose_headers=['X-Model-Used'])
 
 @app.route('/')
 def home():
-    # Mensagem de status clara que reflete a nova arquitetura
-    return "Serviço de Narração v20.0 (Arquitetura Simplificada - Fonte da Verdade PHP) está online."
+    return "Serviço de Narração Unificado v20.5 (Arquitetura Final Corrigida) está online."
 
 @app.route('/api/generate-audio', methods=['POST'])
 def generate_audio_endpoint():
     logger.info("Recebendo solicitação para /api/generate-audio")
     
-    # 1. Validação da API Key e dos dados de entrada
     api_key = os.environ.get("GEMINI_API_KEY")
+
     if not api_key:
         error_msg = "ERRO CRÍTICO: GEMINI_API_KEY não encontrada no ambiente."
         logger.error(error_msg)
         return jsonify({"error": "Configuração do servidor incompleta."}), 500
 
     data = request.get_json()
-    if not data:
-        return jsonify({"error": "Requisição inválida (corpo JSON ausente)."}), 400
+    if not data: return jsonify({"error": "Requisição inválida."}), 400
 
-    # O texto recebido já está 100% normalizado pelo PHP
-    final_text_from_php = data.get('text')
+    # A variável 'text_to_process' agora contém o texto final e confiável do PHP.
+    text_to_process = data.get('text')
     voice_name = data.get('voice')
-    model_nickname = data.get('model_to_use', 'flash') # 'flash' como padrão
+    model_nickname = data.get('model_to_use', 'flash')
 
-    if not final_text_from_php or not voice_name:
-        return jsonify({"error": "Os campos 'text' e 'voice' são obrigatórios."}), 400
+    if not text_to_process or not voice_name:
+        return jsonify({"error": "Texto e voz são obrigatórios."}), 400
 
     try:
-        # 2. Limite de segurança de caracteres (boa prática)
-        INPUT_CHAR_LIMIT = 4950 # Limite seguro para a API
-        if len(final_text_from_php) > INPUT_CHAR_LIMIT:
-            logger.warning(f"Texto ({len(final_text_from_php)} chars) excedeu o limite. Truncando...")
-            final_text_from_php = final_text_from_php[:INPUT_CHAR_LIMIT]
+        INPUT_CHAR_LIMIT = 4900
+        if len(text_to_process) > INPUT_CHAR_LIMIT:
+            logger.warning(f"Texto de entrada ({len(text_to_process)} chars) excedeu o limite. O texto será truncado.")
+            text_to_process = text_to_process[:INPUT_CHAR_LIMIT]
 
-        # --- A MUDANÇA ARQUITETURAL CRÍTICA ---
-        # Nenhuma chamada para text_utils.py. Nenhuma normalização.
-        # O texto do PHP é a verdade absoluta.
-        logger.info(f"Texto final (confiado do PHP) para TTS: '{final_text_from_php[:150]}...'")
+        # --- [INÍCIO DA CORREÇÃO FINAL] ---
+        logger.info(f"Texto final (confiado 100% do PHP) para TTS: '{text_to_process[:150]}...'")
+        # A chamada para a função de normalização do text_utils foi REMOVIDA.
+        # A variável 'corrected_text' não existe mais. Usaremos 'text_to_process' diretamente.
+        # --- [FIM DA CORREÇÃO FINAL] ---
+
+        # Usando os nomes de modelo EXATOS que você forneceu e confirmou. NÃO MUDAR.
+        if model_nickname == 'pro':
+            model_to_use_fullname = "gemini-2.5-pro-preview-tts"
+        else:
+            model_to_use_fullname = "gemini-2.5-flash-preview-tts"
         
-        # 3. Mapeamento do modelo e configuração da API
-        model_to_use_fullname = "gemini-1.5-flash-tts-001" if model_nickname != 'pro' else "gemini-1.5-pro-tts-001"
-        logger.info(f"Usando modelo TTS: {model_to_use_fullname}")
+        logger.info(f"Usando modelo: {model_to_use_fullname}")
         
         client = genai.Client(api_key=api_key)
+
         generate_content_config = types.GenerateContentConfig(
             response_modalities=["audio"],
             speech_config=types.SpeechConfig(
@@ -81,30 +85,21 @@ def generate_audio_endpoint():
             )
         )
         
-        # 4. Geração do áudio via streaming
         audio_data_chunks = []
         for chunk in client.models.generate_content_stream(
-            model=model_to_use_fullname,
-            contents=final_text_from_php, # Usando o texto final diretamente
-            config=generate_content_config
+            # Usando a variável com o texto original do PHP
+            model=model_to_use_fullname, contents=text_to_process, config=generate_content_config
         ):
-            if chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts:
+            if (chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts and chunk.candidates[0].content.parts[0].inline_data and chunk.candidates[0].content.parts[0].inline_data.data):
                 audio_data_chunks.append(chunk.candidates[0].content.parts[0].inline_data.data)
 
         if not audio_data_chunks:
-             logger.error("A API do Google respondeu, mas não retornou dados de áudio.")
-             return jsonify({"error": "Falha na geração de áudio pela API externa."}), 500
+             return jsonify({"error": "A API respondeu, mas não retornou dados de áudio."}), 500
 
-        # 5. Processamento e conversão para MP3
         full_audio_data_raw = b''.join(audio_data_chunks)
-        logger.info("Áudio bruto recebido. Convertendo para MP3 Mono...")
         
-        audio_segment = AudioSegment.from_raw(
-            io.BytesIO(full_audio_data_raw),
-            sample_width=2,
-            frame_rate=24000,
-            channels=1
-        )
+        logger.info("Áudio bruto recebido. Convertendo para MP3 Mono...")
+        audio_segment = AudioSegment.from_raw(io.BytesIO(full_audio_data_raw), sample_width=2, frame_rate=24000, channels=1)
         
         mp3_buffer = io.BytesIO()
         audio_segment.export(mp3_buffer, format="mp3", bitrate="64k")
@@ -112,22 +107,17 @@ def generate_audio_endpoint():
         
         logger.info(f"Conversão para MP3 concluída. Tamanho: {len(mp3_data) / 1024:.2f} KB")
 
-        # 6. Envio da resposta de áudio
-        http_response = make_response(send_file(
-            io.BytesIO(mp3_data),
-            mimetype='audio/mpeg',
-            as_attachment=False
-        ))
+        http_response = make_response(send_file(io.BytesIO(mp3_data), mimetype='audio/mpeg', as_attachment=False))
         http_response.headers['X-Model-Used'] = model_nickname
         
-        logger.info("Sucesso: Áudio MP3 gerado e enviado ao cliente.")
+        logger.info("Sucesso: Áudio MP3 Mono gerado e enviado ao cliente.")
         return http_response
 
     except Exception as e:
-        error_message = f"Erro inesperado no serviço Python: {e}"
-        logger.error(f"ERRO CRÍTICO: {error_message}", exc_info=True)
-        return jsonify({"error": error_message, "user_message": "Ocorreu uma falha interna no serviço de geração de áudio."}), 500
+        error_message = f"Erro inesperado: {e}"
+        logger.error(f"ERRO CRÍTICO NA API: {error_message}", exc_info=True)
+        return jsonify({"error": error_message}), 500
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8080)) # Porta padrão para muitos serviços de nuvem
+    port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port)
