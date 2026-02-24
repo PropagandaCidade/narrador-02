@@ -68,9 +68,9 @@ def generate_audio_endpoint():
         # 4. Mapeamento de Modelos (Flash, Pro e Chirp)
         # Chirp e Pro utilizam o modelo de maior fidelidade
         if model_nickname in ['pro', 'chirp']:
-            model_to_use_fullname = "gemini-1.5-pro-tts-001"
+            model_to_use_fullname = "gemini-2.5-pro-preview-tts"
         else:
-            model_to_use_fullname = "gemini-1.5-flash-tts-001"
+            model_to_use_fullname = "gemini-2.5-flash-preview-tts"
             
         logger.info(f"Usando modelo: {model_to_use_fullname} | Temperatura: {temperature}")
         
