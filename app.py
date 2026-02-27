@@ -1,10 +1,11 @@
-# app.py - VERSÃO 22.0 - DASHBOARD EXPERT MODE (SERVIDOR 02)
-# DESCRIÇÃO: Versão atualizada para suportar Instruções de Voz, Humanização e Chirp.
-# Esta versão mantém a "Fonte Única da Verdade" do PHP, mas adiciona a camada de interpretação IA.
+# app.py - VERSÃO 23.3 - DASHBOARD EXPERT (SERVIDOR 02)
+# LOCAL: voice-hub/app.py (Servidor 02 no Railway)
+# DESCRIÇÃO: Espelho do Servidor 01 com limpeza de tags e modelos 2.5 Preview.
 
 import os
 import io
 import logging
+import re
 
 from flask import Flask, request, jsonify, send_file, make_response
 from flask_cors import CORS
@@ -23,15 +24,26 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 CORS(app, expose_headers=['X-Model-Used'])
 
+def clean_skill_tags(text):
+    """
+    Remove as tags <context_guard> e </context_guard> do roteiro.
+    Necessário para evitar erros 400 nos modelos Gemini Preview.
+    """
+    if not text:
+        return ""
+    # Remove as tags mantendo o conteúdo que foi normalizado pela Skill no PHP
+    cleaned = re.sub(r'</?context_guard>', '', text)
+    return cleaned.strip()
+
 @app.route('/')
 def home():
-    return "Servidor 02 (Dashboard Expert + Chirp) está online e pronto."
+    # Identificação para o Servidor 02
+    return "Servidor 02 (Dashboard Expert - Gemini 2.5) está online e pronto."
 
 @app.route('/api/generate-audio', methods=['POST'])
 def generate_audio_endpoint():
-    logger.info("Recebendo solicitação para /api/generate-audio no Servidor 02")
+    logger.info("Recebendo solicitação no Servidor 02")
     
-    # 1. Validação da API Key
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         logger.error("ERRO: GEMINI_API_KEY não encontrada.")
@@ -41,32 +53,31 @@ def generate_audio_endpoint():
     if not data:
         return jsonify({"error": "Requisição inválida."}), 400
 
-    # 2. Captura de parâmetros (Dashboard & Prompt Lab)
-    text_from_php = data.get('text')
+    # 1. Captura e LIMPEZA das tags da Skill
+    text_raw = data.get('text', '')
+    text_to_narrate = clean_skill_tags(text_raw)
+    
     voice_name = data.get('voice')
     model_nickname = data.get('model_to_use', 'flash')
-    
-    # [NOVO] Parâmetros para o Modo Expert do Dashboard
     custom_prompt = data.get('custom_prompt', '').strip()
+    
     try:
         temperature = float(data.get('temperature', 0.85))
     except (ValueError, TypeError):
         temperature = 0.85
 
-    if not text_from_php or not voice_name:
+    if not text_to_narrate or not voice_name:
         return jsonify({"error": "Texto e voz são obrigatórios."}), 400
 
     try:
-        # 3. Preparação do Texto com Instruções de Estilo
-        # Combinamos as variáveis do Dashboard (sorriso, respiração, etc) em uma instrução única
+        # 2. Preparação do Conteúdo (Instrução + Texto Limpo)
         if custom_prompt:
-            final_content = f"[INSTRUÇÃO DE INTERPRETAÇÃO: {custom_prompt}] {text_from_php}"
+            final_content = f"[INSTRUÇÃO DE INTERPRETAÇÃO: {custom_prompt}] {text_to_narrate}"
             logger.info(f"Aplicando Prompt Expert: {custom_prompt[:100]}...")
         else:
-            final_content = text_from_php
+            final_content = text_to_narrate
 
-        # 4. Mapeamento de Modelos (Flash, Pro e Chirp)
-        # Chirp e Pro utilizam o modelo de maior fidelidade
+        # 3. Mapeamento de Modelos (Respeitando a versão 2.5 Preview solicitada)
         if model_nickname in ['pro', 'chirp']:
             model_to_use_fullname = "gemini-2.5-pro-preview-tts"
         else:
@@ -76,36 +87,33 @@ def generate_audio_endpoint():
         
         client = genai.Client(api_key=api_key)
 
-        # Configuração da Geração com Modalities de Áudio e Temperatura
-        generate_content_config = types.GenerateContentConfig(
-            temperature=temperature,
-            response_modalities=["audio"],
-            speech_config=types.SpeechConfig(
-                voice_config=types.VoiceConfig(
-                    prebuilt_voice_config=types.PrebuiltVoiceConfig(
-                        voice_name=voice_name
-                    )
-                )
-            )
-        )
-        
-        # 5. Geração via Streaming
+        # 4. Geração via Streaming
         audio_data_chunks = []
         for chunk in client.models.generate_content_stream(
             model=model_to_use_fullname,
             contents=final_content,
-            config=generate_content_config
+            config=types.GenerateContentConfig(
+                temperature=temperature,
+                response_modalities=["audio"],
+                speech_config=types.SpeechConfig(
+                    voice_config=types.VoiceConfig(
+                        prebuilt_voice_config=types.PrebuiltVoiceConfig(
+                            voice_name=voice_name
+                        )
+                    )
+                )
+            )
         ):
             if chunk.candidates and chunk.candidates[0].content and chunk.candidates[0].content.parts:
                 audio_data_chunks.append(chunk.candidates[0].content.parts[0].inline_data.data)
 
         if not audio_data_chunks:
-             return jsonify({"error": "API do Google não retornou dados de áudio."}), 500
+             return jsonify({"error": "O Google não retornou dados de áudio no Servidor 02."}), 500
 
-        # 6. Processamento e conversão para MP3 (Pydub)
-        full_audio_data_raw = b''.join(audio_data_chunks)
+        # 5. Processamento MP3
+        full_audio_raw = b''.join(audio_data_chunks)
         audio_segment = AudioSegment.from_raw(
-            io.BytesIO(full_audio_data_raw),
+            io.BytesIO(full_audio_raw),
             sample_width=2,
             frame_rate=24000,
             channels=1
@@ -113,21 +121,18 @@ def generate_audio_endpoint():
         
         mp3_buffer = io.BytesIO()
         audio_segment.export(mp3_buffer, format="mp3", bitrate="64k")
-        mp3_data = mp3_buffer.getvalue()
         
-        # 7. Envio da resposta
         http_response = make_response(send_file(
-            io.BytesIO(mp3_data),
-            mimetype='audio/mpeg',
-            as_attachment=False
+            io.BytesIO(mp3_buffer.getvalue()),
+            mimetype='audio/mpeg'
         ))
         http_response.headers['X-Model-Used'] = model_nickname
         
-        logger.info(f"Sucesso: Áudio gerado ({model_nickname}).")
+        logger.info(f"Sucesso no Servidor 02: Áudio gerado ({model_nickname}).")
         return http_response
 
     except Exception as e:
-        logger.error(f"ERRO CRÍTICO NO SERVIDOR 02: {e}", exc_info=True)
+        logger.error(f"ERRO NO SERVIDOR 02: {e}")
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
